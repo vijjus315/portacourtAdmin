@@ -41,6 +41,88 @@ const resolveBannerImage = (image) => {
   return image.startsWith("/") ? image : `/${image}`;
 };
 
+const ActionMenu = ({ banner, onView, onEdit, onDelete }) => {
+  const [show, setShow] = useState(false);
+
+  const handleToggle = (nextShow) => {
+    // React-Bootstrap passes a boolean when the popover opens/closes.
+    if (typeof nextShow === "boolean") {
+      setShow(nextShow);
+      return;
+    }
+    setShow((prev) => !prev);
+  };
+
+  const handleButtonClick = () => setShow(true);
+
+  const closeMenu = (action) => () => {
+    setShow(false);
+    action(banner);
+  };
+
+  return (
+    <OverlayTrigger
+      trigger="click"
+      placement="bottom-end"
+      flip
+      rootClose
+      show={show}
+      onToggle={handleToggle}
+      overlay={
+        <Popover id={`banner-actions-${banner.id}`} className="popoverdropdown">
+          <Popover.Body>
+            <div className="d-flex flex-column">
+              <Button
+                variant="link"
+                className="dropdownitem"
+                onClick={closeMenu(onView)}
+              >
+                <Icon
+                  icon="solar:eye-linear"
+                  width={16}
+                  height={16}
+                  className="me-1"
+                />
+                View
+              </Button>
+              <Button
+                variant="link"
+                className="dropdownitem"
+                onClick={closeMenu(onEdit)}
+              >
+                <Icon
+                  icon="mynaui:edit"
+                  width={16}
+                  height={16}
+                  className="me-1"
+                />
+                Edit
+              </Button>
+              <Button
+                variant="link"
+                className="dropdownitem"
+                onClick={closeMenu(onDelete)}
+              >
+                <Icon
+                  icon="fluent:delete-28-regular"
+                  width={16}
+                  height={16}
+                  className="me-1"
+                />
+                Delete
+              </Button>
+            </div>
+          </Popover.Body>
+        </Popover>
+      }
+    >
+      <Button variant="link" className="actionbtn p-0" onClick={handleButtonClick}>
+        <Icon icon="tabler:dots" />
+      </Button>
+    </OverlayTrigger>
+  );
+};
+
 export default function Banners() {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
@@ -207,84 +289,19 @@ export default function Banners() {
       {
         name: "",
         width: "120px",
-        cell: (row) => {
-          const [popoverShow, setPopoverShow] = useState(false);
-
-          const toggle = () => setPopoverShow((prev) => !prev);
-          const close = () => setPopoverShow(false);
-
-          return (
-            <OverlayTrigger
-              trigger="click"
-              placement="bottom-end"
-              flip
-              rootClose
-              show={popoverShow}
-              onToggle={toggle}
-              overlay={
-                <Popover
-                  id={`banner-actions-${row.id}`}
-                  className="popoverdropdown"
-                >
-                  <Popover.Body onClick={close}>
-                    <div className="d-flex flex-column">
-                      <Button
-                        variant="link"
-                        className="dropdownitem"
-                        onClick={() => handleViewClick(row)}
-                      >
-                        <Icon
-                          icon="solar:eye-linear"
-                          width={16}
-                          height={16}
-                          className="me-1"
-                        />
-                        View
-                      </Button>
-                      <Button
-                        variant="link"
-                        className="dropdownitem"
-                        onClick={() =>
-                          navigate(`/banners/edit/${row.id}`, {
-                            state: { banner: row },
-                          })
-                        }
-                      >
-                        <Icon
-                          icon="mynaui:edit"
-                          width={16}
-                          height={16}
-                          className="me-1"
-                        />
-                        Edit
-                      </Button>
-                      <Button
-                        variant="link"
-                        className="dropdownitem"
-                        onClick={() => handleDeleteClick(row)}
-                      >
-                        <Icon
-                          icon="fluent:delete-28-regular"
-                          width={16}
-                          height={16}
-                          className="me-1"
-                        />
-                        Delete
-                      </Button>
-                    </div>
-                  </Popover.Body>
-                </Popover>
-              }
-            >
-              <Button variant="link" className="actionbtn p-0" onClick={toggle}>
-                <Icon icon="tabler:dots" />
-              </Button>
-            </OverlayTrigger>
-          );
-        },
+        cell: (row) => (
+          <ActionMenu
+            banner={row}
+            onView={handleViewClick}
+            onEdit={(banner) =>
+              navigate(`/banners/edit/${banner.id}`, { state: { banner } })
+            }
+            onDelete={handleDeleteClick}
+          />
+        ),
       },
     ],
-    [navigate, handleDeleteClick, handleViewClick]
+    [handleDeleteClick, handleViewClick, navigate]
   );
 
   return (

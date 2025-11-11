@@ -46,7 +46,7 @@ export default function EditBanner() {
   const [status, setStatus] = useState(1);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(placeholder);
-  const [existingImagePath, setExistingImagePath] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -61,8 +61,9 @@ export default function EditBanner() {
     setStatus(
       typeof banner.status === "number" ? banner.status : Number(banner.status) || 0
     );
-    setExistingImagePath(banner.image_url || "");
-    setImagePreview(resolveBannerImage(banner.image_url));
+    const resolvedImage = resolveBannerImage(banner.image_url);
+    setImageUrl(banner.image_url || "");
+    setImagePreview(resolvedImage);
   }, []);
 
   useEffect(() => {
@@ -102,6 +103,14 @@ export default function EditBanner() {
       const objectUrl = URL.createObjectURL(file);
       setImageFile(file);
       setImagePreview(objectUrl);
+      setImageUrl("");
+    }
+  };
+
+  const handleImageUrlChange = (value) => {
+    setImageUrl(value);
+    if (!imageFile) {
+      setImagePreview(value ? resolveBannerImage(value) : placeholder);
     }
   };
 
@@ -125,22 +134,35 @@ export default function EditBanner() {
       return;
     }
 
+    const trimmedImageUrl = imageUrl.trim();
+
+    if (!imageFile && !trimmedImageUrl) {
+      setError("Image URL is required.");
+      return;
+    }
+
     setIsSaving(true);
     setError("");
 
     try {
-      const formData = new FormData();
-      formData.append("title", trimmedTitle);
-      formData.append("description", description.trim());
-      formData.append("status", Number(status));
-
+      let payload;
       if (imageFile) {
+        const formData = new FormData();
+        formData.append("title", trimmedTitle);
+        formData.append("description", description.trim());
+        formData.append("status", Number(status));
         formData.append("image", imageFile);
-      } else if (existingImagePath) {
-        formData.append("image_url", existingImagePath);
+        payload = formData;
+      } else {
+        payload = {
+          title: trimmedTitle,
+          description: description.trim(),
+          status: Number(status),
+          image_url: trimmedImageUrl,
+        };
       }
 
-      await updateBanner(id, formData);
+      await updateBanner(id, payload);
       navigate("/banners");
     } catch (err) {
       console.error("Unable to update banner", err);
@@ -205,6 +227,20 @@ export default function EditBanner() {
             <small className="text-muted d-block mt-2">
               Supported formats: JPG, PNG. Max file size: 5 MB.
             </small>
+          </Col>
+          <Col md={12}>
+            <Form.Group className="form-group">
+              <Form.Label>Image URL</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter image URL or upload an image"
+                value={imageUrl}
+                onChange={(e) => handleImageUrlChange(e.target.value)}
+              />
+              <Form.Text muted>
+                Provide a hosted image URL if you are not uploading a new file.
+              </Form.Text>
+            </Form.Group>
           </Col>
           <Col md={6}>
             <Form.Group className="form-group">
