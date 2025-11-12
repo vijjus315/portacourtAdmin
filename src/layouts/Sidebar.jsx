@@ -93,6 +93,18 @@ const Sidebar = () => {
       link: "/coupons",
       icon: "mdi:ticket-percent-outline",
     },
+    {
+      id: "Blogs",
+      title: "Blogs",
+      link: "/blogs",
+      icon: "mdi:blog-outline",
+    },
+    {
+      id: "Courts",
+      title: "Courts",
+      link: "/courts",
+      icon: "mdi:tennis",
+    },
       {
         id: "Properties",
         title: "Properties",

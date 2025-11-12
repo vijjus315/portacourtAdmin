@@ -3,23 +3,13 @@ import { Button, Form, OverlayTrigger, Popover } from "react-bootstrap";
 import { Icon } from "@iconify/react";
 import DataTable from "react-data-table-component";
 import { Link, useNavigate } from "react-router-dom";
-import { fetchCoupons, deleteCoupon } from "../../services/api/coupons";
+import { deleteBlog, fetchBlogs } from "../../services/api/blogs";
 import { getAccessToken } from "../../services/api/apiClient";
 import DeleteModal from "../../Component/DeleteModal";
 
 const STATUS_MAP = {
-  inactive: { label: "Inactive", color: "#dc2626" },
-  active: { label: "Active", color: "#22c55e" },
-};
-
-const formatDiscountType = (type) => {
-  const normalized = String(type ?? "")
-    .toLowerCase()
-    .trim();
-  if (normalized === "percentage") {
-    return "Percentage";
-  }
-  return "Fixed";
+  0: { label: "Draft", color: "#f97316" },
+  1: { label: "Published", color: "#22c55e" },
 };
 
 const formatDate = (value) => {
@@ -28,43 +18,21 @@ const formatDate = (value) => {
   if (Number.isNaN(date.getTime())) {
     return value;
   }
-  return date.toLocaleDateString(undefined, {
+  return date.toLocaleString(undefined, {
     year: "numeric",
     month: "short",
     day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };
 
-const statusLabel = (isActive) =>
-  isActive ? STATUS_MAP.active.label : STATUS_MAP.inactive.label;
-const statusStyle = (isActive) => ({
-  color: isActive ? STATUS_MAP.active.color : STATUS_MAP.inactive.color,
+const statusLabel = (status) => STATUS_MAP[status]?.label ?? "Draft";
+const statusStyle = (status) => ({
+  color: STATUS_MAP[status]?.color ?? "#6b7280",
 });
 
-const formatMoney = (value) => {
-  if (typeof value === "number") {
-    return `$${value.toFixed(2)}`;
-  }
-  if (value === null || value === undefined || value === "") {
-    return "$0.00";
-  }
-  const numeric = Number(value);
-  if (!Number.isNaN(numeric)) {
-    return `$${numeric.toFixed(2)}`;
-  }
-  return `$${value}`;
-};
-
-const formatDiscount = (coupon) => {
-  if (!coupon) return "-";
-  const type = formatDiscountType(coupon.discount_type);
-  if (type === "Percentage") {
-    return `${coupon.discount_value ?? 0}%`;
-  }
-  return formatMoney(coupon.discount_value);
-};
-
-const ActionMenu = ({ coupon, onView, onEdit, onDelete }) => {
+const ActionMenu = ({ blog, onView, onEdit, onDelete }) => {
   const [show, setShow] = useState(false);
 
   const handleToggle = (nextShow) => {
@@ -79,17 +47,17 @@ const ActionMenu = ({ coupon, onView, onEdit, onDelete }) => {
 
   const handleView = () => {
     setShow(false);
-    onView(coupon);
+    onView(blog);
   };
 
   const handleEdit = () => {
     setShow(false);
-    onEdit(coupon);
+    onEdit?.(blog);
   };
 
   const handleDelete = () => {
     setShow(false);
-    onDelete(coupon);
+    onDelete?.(blog);
   };
 
   return (
@@ -101,7 +69,7 @@ const ActionMenu = ({ coupon, onView, onEdit, onDelete }) => {
       show={show}
       onToggle={handleToggle}
       overlay={
-        <Popover id={`coupon-actions-${coupon.id}`} className="popoverdropdown">
+        <Popover id={`blog-actions-${blog.id}`} className="popoverdropdown">
           <Popover.Body>
             <div className="d-flex flex-column">
               <Button variant="link" className="dropdownitem" onClick={handleView}>
@@ -109,11 +77,11 @@ const ActionMenu = ({ coupon, onView, onEdit, onDelete }) => {
                 View Details
               </Button>
               <Button variant="link" className="dropdownitem" onClick={handleEdit}>
-                <Icon icon="mynaui:edit" width={16} height={16} className="me-1" />
+                <Icon icon="solar:pen-linear" width={16} height={16} className="me-1" />
                 Edit
               </Button>
-              <Button variant="link" className="dropdownitem" onClick={handleDelete}>
-                <Icon icon="fluent:delete-28-regular" width={16} height={16} className="me-1" />
+              <Button variant="link" className="dropdownitem text-danger" onClick={handleDelete}>
+                <Icon icon="fluent:delete-24-regular" width={16} height={16} className="me-1" />
                 Delete
               </Button>
             </div>
@@ -128,18 +96,18 @@ const ActionMenu = ({ coupon, onView, onEdit, onDelete }) => {
   );
 };
 
-export default function Coupons() {
+export default function Blogs() {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
-  const [coupons, setCoupons] = useState([]);
+  const [blogs, setBlogs] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedBlog, setSelectedBlog] = useState(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const loadCoupons = useCallback(
+  const loadBlogs = useCallback(
     async ({ search = "" } = {}) => {
       if (!getAccessToken()) {
         return;
@@ -148,15 +116,15 @@ export default function Coupons() {
       setIsLoading(true);
       setError("");
       try {
-        const response = await fetchCoupons({
+        const response = await fetchBlogs({
           search: search || undefined,
         });
 
         const items = Array.isArray(response?.body) ? response.body : [];
-        setCoupons(items);
+        setBlogs(items);
       } catch (err) {
-        console.error("Unable to fetch coupons", err);
-        setError(err?.message || "Unable to fetch coupons. Please try again.");
+        console.error("Unable to fetch blogs", err);
+        setError(err?.message || "Unable to fetch blogs. Please try again.");
       } finally {
         setIsLoading(false);
       }
@@ -166,26 +134,19 @@ export default function Coupons() {
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      loadCoupons({ search: searchText });
+      loadBlogs({ search: searchText });
     }, 300);
 
     return () => clearTimeout(handler);
-  }, [loadCoupons, searchText]);
+  }, [loadBlogs, searchText]);
 
   const filteredData = useMemo(() => {
-    let result = coupons.map((coupon) => ({
-      ...coupon,
-      displayCode: coupon.code || coupon.coupon_code || "-",
-      statusLabel: statusLabel(coupon.is_active ?? coupon.status),
-      statusStyle: statusStyle(coupon.is_active ?? coupon.status),
-      discountSummary: formatDiscount(coupon),
-      discountTypeLabel: formatDiscountType(coupon.discount_type),
-      minOrderAmount: coupon.min_order_amount,
-      maxDiscountAmount: coupon.max_discount_amount,
-      startDateLabel: formatDate(coupon.start_date),
-      endDateLabel: formatDate(coupon.expiry_date ?? coupon.end_date),
-      usageLimit: coupon.usage_limit != null ? coupon.usage_limit : "Unlimited",
-      usageCount: coupon.used_count ?? coupon.usage_count ?? 0,
+    let result = blogs.map((blog) => ({
+      ...blog,
+      statusLabel: statusLabel(blog.status),
+      statusStyle: statusStyle(blog.status),
+      createdLabel: formatDate(blog.created_at),
+      updatedLabel: formatDate(blog.updated_at),
     }));
 
     if (statusFilter !== "All") {
@@ -200,84 +161,65 @@ export default function Coupons() {
     }
 
     return result;
-  }, [coupons, statusFilter, searchText]);
+  }, [blogs, statusFilter, searchText]);
 
   const handleView = useCallback(
-    (coupon) => {
-      navigate(`/coupons/view/${coupon.id}`, { state: { coupon } });
+    (blog) => {
+      navigate(`/blogs/view/${blog.id}`, { state: { blog } });
     },
     [navigate]
   );
 
   const handleEdit = useCallback(
-    (coupon) => {
-      navigate(`/coupons/edit/${coupon.id}`, { state: { coupon } });
+    (blog) => {
+      navigate(`/blogs/edit/${blog.id}`, { state: { blog } });
     },
     [navigate]
   );
 
-  const handleDelete = useCallback((coupon) => {
-    setDeleteTarget(coupon);
+  const handleDeleteClick = useCallback((blog) => {
+    setSelectedBlog(blog);
     setIsDeleteOpen(true);
   }, []);
 
-  const handleDeleteConfirm = useCallback(async () => {
-    if (!deleteTarget || isDeleting) {
-      return;
-    }
-
-    setIsDeleting(true);
-    try {
-      await deleteCoupon(deleteTarget.id);
-      setCoupons((previous) =>
-        previous.filter((item) => item.id !== deleteTarget.id)
-      );
-      setIsDeleteOpen(false);
-      setDeleteTarget(null);
-    } catch (err) {
-      console.error("Unable to delete coupon", err);
-      setError(err?.message || "Unable to delete coupon. Please try again.");
-    } finally {
-      setIsDeleting(false);
-    }
-  }, [deleteTarget, isDeleting]);
-
-  const handleDeleteCancel = useCallback(() => {
+  const handleDeleteClose = useCallback(() => {
     if (isDeleting) {
       return;
     }
     setIsDeleteOpen(false);
-    setDeleteTarget(null);
+    setSelectedBlog(null);
   }, [isDeleting]);
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!selectedBlog) {
+      return;
+    }
+    setIsDeleting(true);
+    setError("");
+    try {
+      await deleteBlog(selectedBlog.id);
+      setBlogs((prev) => prev.filter((item) => item.id !== selectedBlog.id));
+      setIsDeleteOpen(false);
+      setSelectedBlog(null);
+    } catch (err) {
+      console.error("Unable to delete blog", err);
+      setError(err?.message || "Unable to delete blog. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [selectedBlog]);
 
   const columns = useMemo(
     () => [
       {
         name: "",
-        minWidth: "200px",
-        selector: (row) => row.displayCode,
+        minWidth: "280px",
+        selector: (row) => row.title,
         cell: (row) => (
           <div>
-            <h4>Code</h4>
-            <p className="mb-1">{row.displayCode}</p>
-            <small className="text-muted d-block">
-              {row.description || "No description"}
-            </small>
-          </div>
-        ),
-        sortable: false,
-      },
-      {
-        name: "",
-        minWidth: "160px",
-        selector: (row) => row.discountSummary,
-        cell: (row) => (
-          <div>
-            <h4>Discount</h4>
-            <p className="mb-1">{row.discountSummary}</p>
-            <small className="text-muted d-block">
-              Type: {row.discountTypeLabel}
-            </small>
+            <h4>Title</h4>
+            <p className="mb-1">{row.title || "-"}</p>
+            <small className="text-muted d-block">{row.slug || "-"}</small>
           </div>
         ),
         sortable: false,
@@ -285,12 +227,26 @@ export default function Coupons() {
       {
         name: "",
         minWidth: "200px",
-        selector: (row) => row.startDateLabel,
+        selector: (row) => row.author,
         cell: (row) => (
           <div>
-            <h4>Valid From</h4>
-            <p className="mb-1">{row.startDateLabel}</p>
-            <small className="text-muted d-block">To: {row.endDateLabel}</small>
+            <h4>Author</h4>
+            {row.author || "-"}
+          </div>
+        ),
+        sortable: false,
+      },
+      {
+        name: "",
+        minWidth: "200px",
+        selector: (row) => row.createdLabel,
+        cell: (row) => (
+          <div>
+            <h4>Created</h4>
+            <p className="mb-1">{row.createdLabel}</p>
+            <small className="text-muted d-block">
+              Updated: {row.updatedLabel}
+            </small>
           </div>
         ),
         sortable: false,
@@ -311,63 +267,27 @@ export default function Coupons() {
       },
       {
         name: "",
-        minWidth: "200px",
-        selector: (row) => row.minOrderAmount,
-        cell: (row) => (
-          <div>
-            <h4>Order Threshold</h4>
-            <p className="mb-1">
-              Min Order:{" "}
-              {row.minOrderAmount ? formatMoney(row.minOrderAmount) : "-"}
-            </p>
-            <small className="text-muted d-block">
-              Max Discount:{" "}
-              {row.maxDiscountAmount ? formatMoney(row.maxDiscountAmount) : "-"}
-            </small>
-          </div>
-        ),
-        sortable: false,
-      },
-      {
-        name: "",
-        minWidth: "180px",
-        selector: (row) => row.usageLimit,
-        cell: (row) => (
-          <div>
-            <h4>Usage</h4>
-            <p className="mb-1">
-              Limit: {row.usageLimit}
-            </p>
-            <small className="text-muted d-block">
-              Used: {row.usageCount}
-            </small>
-          </div>
-        ),
-        sortable: false,
-      },
-      {
-        name: "",
         width: "120px",
         cell: (row) => (
           <ActionMenu
-            coupon={row}
+            blog={row}
             onView={handleView}
             onEdit={handleEdit}
-            onDelete={handleDelete}
+            onDelete={handleDeleteClick}
           />
         ),
       },
     ],
-    [handleDelete, handleEdit, handleView]
+    [handleDeleteClick, handleEdit, handleView]
   );
 
   return (
     <React.Fragment>
       <div className="d-flex flex-wrap align-items-center justify-content-between mb_20">
-        <h4 className="mainheading">Coupons</h4>
-        <Button as={Link} className="btn-sm" to="/coupons/add">
+        <h4 className="mainheading">Blogs</h4>
+        <Button as={Link} className="btn-sm" to="/blogs/add">
           <Icon icon="ic:twotone-plus" width={22} height={22} />
-          Add Coupon
+          Add Blog
         </Button>
       </div>
       <div className="tableSearchBox mb-2">
@@ -376,7 +296,7 @@ export default function Coupons() {
             <Form.Label>Search</Form.Label>
             <Form.Control
               type="text"
-              placeholder="Search by code or description"
+              placeholder="Search by title, slug, or author"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
             />
@@ -389,8 +309,8 @@ export default function Coupons() {
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
                 <option value="All">All</option>
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
+                <option value="Published">Published</option>
+                <option value="Draft">Draft</option>
               </Form.Select>
               <Icon icon="meteor-icons:chevron-down" className="custom-arrow-icon" />
             </div>
@@ -411,7 +331,7 @@ export default function Coupons() {
       </div>
       <DeleteModal
         show={isDeleteOpen}
-        onHide={handleDeleteCancel}
+        onHide={handleDeleteClose}
         onConfirm={handleDeleteConfirm}
         isProcessing={isDeleting}
       />

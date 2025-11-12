@@ -23,7 +23,17 @@ import EditCategory from "./screens/Categories/EditCategory";
 import Contacts from "./screens/Contacts";
 import ViewContact from "./screens/Contacts/viewContact";
 import Coupons from "./screens/Coupons";
+import AddCoupon from "./screens/Coupons/AddCoupon";
 import ViewCoupon from "./screens/Coupons/viewCoupon";
+import EditCoupon from "./screens/Coupons/EditCoupon";
+import Blogs from "./screens/Blogs";
+import AddBlog from "./screens/Blogs/AddBlog";
+import EditBlog from "./screens/Blogs/EditBlog";
+import ViewBlog from "./screens/Blogs/viewBlog";
+import Courts from "./screens/Courts";
+import AddCourt from "./screens/Courts/AddCourt";
+import EditCourt from "./screens/Courts/EditCourt";
+import ViewCourt from "./screens/Courts/viewCourt";
 import Host from "./screens/Host";
 import AddHost from "./screens/Host/addHost";
 import EditHost from "./screens/Host/editHost";
@@ -75,7 +85,17 @@ function App() {
             <Route path="/contacts" element={<ProtectedRoute><Layout><Contacts/></Layout></ProtectedRoute>}/>
             <Route path="/contacts/view/:id" element={<ProtectedRoute><Layout><ViewContact/></Layout></ProtectedRoute>}/>
             <Route path="/coupons" element={<ProtectedRoute><Layout><Coupons/></Layout></ProtectedRoute>}/>
+            <Route path="/coupons/add" element={<ProtectedRoute><Layout><AddCoupon/></Layout></ProtectedRoute>}/>
             <Route path="/coupons/view/:id" element={<ProtectedRoute><Layout><ViewCoupon/></Layout></ProtectedRoute>}/>
+            <Route path="/coupons/edit/:id" element={<ProtectedRoute><Layout><EditCoupon/></Layout></ProtectedRoute>}/>
+            <Route path="/blogs" element={<ProtectedRoute><Layout><Blogs/></Layout></ProtectedRoute>}/>
+            <Route path="/blogs/add" element={<ProtectedRoute><Layout><AddBlog/></Layout></ProtectedRoute>}/>
+            <Route path="/blogs/edit/:id" element={<ProtectedRoute><Layout><EditBlog/></Layout></ProtectedRoute>}/>
+            <Route path="/blogs/view/:id" element={<ProtectedRoute><Layout><ViewBlog/></Layout></ProtectedRoute>}/>
+            <Route path="/courts" element={<ProtectedRoute><Layout><Courts/></Layout></ProtectedRoute>}/>
+            <Route path="/courts/add" element={<ProtectedRoute><Layout><AddCourt/></Layout></ProtectedRoute>}/>
+            <Route path="/courts/edit/:id" element={<ProtectedRoute><Layout><EditCourt/></Layout></ProtectedRoute>}/>
+            <Route path="/courts/view/:id" element={<ProtectedRoute><Layout><ViewCourt/></Layout></ProtectedRoute>}/>
             <Route path="/host" element={<ProtectedRoute><Layout><Host/></Layout></ProtectedRoute>}/>
             <Route path="/host/addhost" element={<ProtectedRoute><Layout><AddHost/></Layout></ProtectedRoute>}/>
             <Route path="/host/edithost" element={<ProtectedRoute><Layout><EditHost/></Layout></ProtectedRoute>}/>
