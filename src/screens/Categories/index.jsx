@@ -43,6 +43,85 @@ const resolveCategoryImage = (image) => {
   return image.startsWith("/") ? image : `/${image}`;
 };
 
+const ActionMenu = ({ category, onView, onEdit, onDelete }) => {
+  const [show, setShow] = useState(false);
+
+  const handleToggle = (nextShow) => {
+    if (typeof nextShow === "boolean") {
+      setShow(nextShow);
+      return;
+    }
+    setShow((prev) => !prev);
+  };
+
+  const handleButtonClick = () => setShow(true);
+
+  const handleView = () => {
+    setShow(false);
+    onView(category);
+  };
+
+  const handleEdit = () => {
+    setShow(false);
+    onEdit(category);
+  };
+
+  const handleDelete = () => {
+    setShow(false);
+    onDelete(category);
+  };
+
+  return (
+    <OverlayTrigger
+      trigger="click"
+      placement="bottom-end"
+      flip
+      rootClose
+      show={show}
+      onToggle={handleToggle}
+      overlay={
+        <Popover id={`category-actions-${category.id}`} className="popoverdropdown">
+          <Popover.Body>
+            <div className="d-flex flex-column">
+              <Button variant="link" className="dropdownitem" onClick={handleView}>
+                <Icon
+                  icon="solar:eye-linear"
+                  width={16}
+                  height={16}
+                  className="me-1"
+                />
+                View
+              </Button>
+              <Button variant="link" className="dropdownitem" onClick={handleEdit}>
+                <Icon
+                  icon="mynaui:edit"
+                  width={16}
+                  height={16}
+                  className="me-1"
+                />
+                Edit
+              </Button>
+              <Button variant="link" className="dropdownitem" onClick={handleDelete}>
+                <Icon
+                  icon="fluent:delete-28-regular"
+                  width={16}
+                  height={16}
+                  className="me-1"
+                />
+                Delete
+              </Button>
+            </div>
+          </Popover.Body>
+        </Popover>
+      }
+    >
+      <Button variant="link" className="actionbtn p-0" onClick={handleButtonClick}>
+        <Icon icon="tabler:dots" />
+      </Button>
+    </OverlayTrigger>
+  );
+};
+
 export default function Categories() {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
@@ -91,10 +170,10 @@ export default function Categories() {
     return () => clearTimeout(handler);
   }, [loadCategories, searchText]);
 
-  const handleDeleteClick = (category) => {
+  const handleDeleteClick = useCallback((category) => {
     setDeleteTarget(category);
     setShowDeleteModal(true);
-  };
+  }, []);
 
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) {
@@ -205,71 +284,23 @@ export default function Categories() {
       {
         name: "",
         width: "120px",
-        cell: (row) => {
-          const [popoverShow, setPopoverShow] = useState(false);
-
-          const toggle = () => setPopoverShow((prev) => !prev);
-          const close = () => setPopoverShow(false);
-
-          return (
-            <OverlayTrigger
-              trigger="click"
-              placement="bottom-end"
-              flip
-              rootClose
-              show={popoverShow}
-              onToggle={toggle}
-              overlay={
-                <Popover
-                  id={`category-actions-${row.id}`}
-                  className="popoverdropdown"
-                >
-                  <Popover.Body onClick={close}>
-                    <div className="d-flex flex-column">
-                      <Button
-                        variant="link"
-                        className="dropdownitem"
-                        onClick={() =>
-                          navigate(`/categories/edit/${row.id}`, {
-                            state: { category: row },
-                          })
-                        }
-                      >
-                        <Icon
-                          icon="mynaui:edit"
-                          width={16}
-                          height={16}
-                          className="me-1"
-                        />
-                        Edit
-                      </Button>
-                      <Button
-                        variant="link"
-                        className="dropdownitem"
-                        onClick={() => handleDeleteClick(row)}
-                      >
-                        <Icon
-                          icon="fluent:delete-28-regular"
-                          width={16}
-                          height={16}
-                          className="me-1"
-                        />
-                        Delete
-                      </Button>
-                    </div>
-                  </Popover.Body>
-                </Popover>
-              }
-            >
-              <Button variant="link" className="actionbtn p-0" onClick={toggle}>
-                <Icon icon="tabler:dots" />
-              </Button>
-            </OverlayTrigger>
-          );
-        },
+        cell: (row) => (
+          <ActionMenu
+            category={row}
+            onView={(category) =>
+              navigate(`/categories/edit/${category.id}`, {
+                state: { category },
+              })
+            }
+            onEdit={(category) =>
+              navigate(`/categories/edit/${category.id}`, { state: { category } })
+            }
+            onDelete={handleDeleteClick}
+          />
+        ),
       },
     ],
-    [navigate]
+    [handleDeleteClick, navigate]
   );
 
   return (

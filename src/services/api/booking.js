@@ -1,7 +1,7 @@
 import { request } from "./apiClient";
 
 const BOOKING_ENDPOINTS = {
-  LIST: "/booking",
+  LIST: "/bookings",
   DETAIL: (id) => `/booking/${id}`,
   UPDATE_STATUS: (id) => `/booking/${id}/status`,
 };
@@ -34,4 +34,3 @@ export default {
   fetchBookingDetail,
   updateBookingStatus,
 };
-

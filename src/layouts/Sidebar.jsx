@@ -81,6 +81,18 @@ const Sidebar = () => {
       link: "/categories",
       icon: "mdi:shape-outline",
     },
+    {
+      id: "Contacts",
+      title: "Contacts",
+      link: "/contacts",
+      icon: "mdi:account-voice",
+    },
+    {
+      id: "Coupons",
+      title: "Coupons",
+      link: "/coupons",
+      icon: "mdi:ticket-percent-outline",
+    },
       {
         id: "Properties",
         title: "Properties",

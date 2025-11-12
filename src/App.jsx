@@ -20,6 +20,10 @@ import EditBanner from "./screens/Banners/EditBanner";
 import Categories from "./screens/Categories";
 import AddCategory from "./screens/Categories/AddCategory";
 import EditCategory from "./screens/Categories/EditCategory";
+import Contacts from "./screens/Contacts";
+import ViewContact from "./screens/Contacts/viewContact";
+import Coupons from "./screens/Coupons";
+import ViewCoupon from "./screens/Coupons/viewCoupon";
 import Host from "./screens/Host";
 import AddHost from "./screens/Host/addHost";
 import EditHost from "./screens/Host/editHost";
@@ -68,6 +72,10 @@ function App() {
             <Route path="/categories" element={<ProtectedRoute><Layout><Categories/></Layout></ProtectedRoute>}/>
             <Route path="/categories/add" element={<ProtectedRoute><Layout><AddCategory/></Layout></ProtectedRoute>}/>
             <Route path="/categories/edit/:id" element={<ProtectedRoute><Layout><EditCategory/></Layout></ProtectedRoute>}/>
+            <Route path="/contacts" element={<ProtectedRoute><Layout><Contacts/></Layout></ProtectedRoute>}/>
+            <Route path="/contacts/view/:id" element={<ProtectedRoute><Layout><ViewContact/></Layout></ProtectedRoute>}/>
+            <Route path="/coupons" element={<ProtectedRoute><Layout><Coupons/></Layout></ProtectedRoute>}/>
+            <Route path="/coupons/view/:id" element={<ProtectedRoute><Layout><ViewCoupon/></Layout></ProtectedRoute>}/>
             <Route path="/host" element={<ProtectedRoute><Layout><Host/></Layout></ProtectedRoute>}/>
             <Route path="/host/addhost" element={<ProtectedRoute><Layout><AddHost/></Layout></ProtectedRoute>}/>
             <Route path="/host/edithost" element={<ProtectedRoute><Layout><EditHost/></Layout></ProtectedRoute>}/>
