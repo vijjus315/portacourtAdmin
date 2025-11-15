@@ -105,12 +105,18 @@ const Sidebar = () => {
       link: "/courts",
       icon: "mdi:tennis",
     },
-      {
-        id: "Properties",
-        title: "Properties",
-        link: "/property",
-        icon: "icons8:home",
-      },
+    {
+      id: "Events",
+      title: "Events",
+      link: "/events",
+      icon: "mdi:calendar-star",
+    },
+      // {
+      //   id: "Properties",
+      //   title: "Properties",
+      //   link: "/property",
+      //   icon: "icons8:home",
+      // },
       {
         id: "Bookings",
         title: "Bookings",

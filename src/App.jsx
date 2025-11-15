@@ -34,6 +34,10 @@ import Courts from "./screens/Courts";
 import AddCourt from "./screens/Courts/AddCourt";
 import EditCourt from "./screens/Courts/EditCourt";
 import ViewCourt from "./screens/Courts/viewCourt";
+import Events from "./screens/Events";
+import AddEvent from "./screens/Events/AddEvent";
+import EditEvent from "./screens/Events/EditEvent";
+import ViewEvent from "./screens/Events/viewEvent";
 import Host from "./screens/Host";
 import AddHost from "./screens/Host/addHost";
 import EditHost from "./screens/Host/editHost";
@@ -96,6 +100,10 @@ function App() {
             <Route path="/courts/add" element={<ProtectedRoute><Layout><AddCourt/></Layout></ProtectedRoute>}/>
             <Route path="/courts/edit/:id" element={<ProtectedRoute><Layout><EditCourt/></Layout></ProtectedRoute>}/>
             <Route path="/courts/view/:id" element={<ProtectedRoute><Layout><ViewCourt/></Layout></ProtectedRoute>}/>
+            <Route path="/events" element={<ProtectedRoute><Layout><Events/></Layout></ProtectedRoute>}/>
+            <Route path="/events/add" element={<ProtectedRoute><Layout><AddEvent/></Layout></ProtectedRoute>}/>
+            <Route path="/events/edit/:id" element={<ProtectedRoute><Layout><EditEvent/></Layout></ProtectedRoute>}/>
+            <Route path="/events/view/:id" element={<ProtectedRoute><Layout><ViewEvent/></Layout></ProtectedRoute>}/>
             <Route path="/host" element={<ProtectedRoute><Layout><Host/></Layout></ProtectedRoute>}/>
             <Route path="/host/addhost" element={<ProtectedRoute><Layout><AddHost/></Layout></ProtectedRoute>}/>
             <Route path="/host/edithost" element={<ProtectedRoute><Layout><EditHost/></Layout></ProtectedRoute>}/>
