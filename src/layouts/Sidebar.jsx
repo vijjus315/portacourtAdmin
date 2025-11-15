@@ -111,6 +111,12 @@ const Sidebar = () => {
       link: "/events",
       icon: "mdi:calendar-star",
     },
+    {
+      id: "Products",
+      title: "Products",
+      link: "/products",
+      icon: "mdi:package-variant",
+    },
       // {
       //   id: "Properties",
       //   title: "Properties",

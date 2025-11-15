@@ -38,6 +38,10 @@ import Events from "./screens/Events";
 import AddEvent from "./screens/Events/AddEvent";
 import EditEvent from "./screens/Events/EditEvent";
 import ViewEvent from "./screens/Events/viewEvent";
+import Products from "./screens/Products";
+import AddProduct from "./screens/Products/AddProduct";
+import EditProduct from "./screens/Products/EditProduct";
+import ViewProduct from "./screens/Products/viewProduct";
 import Host from "./screens/Host";
 import AddHost from "./screens/Host/addHost";
 import EditHost from "./screens/Host/editHost";
@@ -104,6 +108,10 @@ function App() {
             <Route path="/events/add" element={<ProtectedRoute><Layout><AddEvent/></Layout></ProtectedRoute>}/>
             <Route path="/events/edit/:id" element={<ProtectedRoute><Layout><EditEvent/></Layout></ProtectedRoute>}/>
             <Route path="/events/view/:id" element={<ProtectedRoute><Layout><ViewEvent/></Layout></ProtectedRoute>}/>
+            <Route path="/products" element={<ProtectedRoute><Layout><Products/></Layout></ProtectedRoute>}/>
+            <Route path="/products/add" element={<ProtectedRoute><Layout><AddProduct/></Layout></ProtectedRoute>}/>
+            <Route path="/products/edit/:id" element={<ProtectedRoute><Layout><EditProduct/></Layout></ProtectedRoute>}/>
+            <Route path="/products/view/:id" element={<ProtectedRoute><Layout><ViewProduct/></Layout></ProtectedRoute>}/>
             <Route path="/host" element={<ProtectedRoute><Layout><Host/></Layout></ProtectedRoute>}/>
             <Route path="/host/addhost" element={<ProtectedRoute><Layout><AddHost/></Layout></ProtectedRoute>}/>
             <Route path="/host/edithost" element={<ProtectedRoute><Layout><EditHost/></Layout></ProtectedRoute>}/>
